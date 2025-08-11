@@ -3,6 +3,7 @@ using System.ServiceProcess;
 
 namespace FileMoverService
 {
+    // This attribute makes sure this installer runs when you install the service
     [RunInstaller(true)]
     public partial class ProjectInstaller : System.Configuration.Install.Installer
     {
@@ -10,22 +11,22 @@ namespace FileMoverService
         {
             InitializeComponent();
 
-            // Configure the service to run under LocalService
+            // Set the account that the service will run under (LocalService in this case)
             var processInstaller = new ServiceProcessInstaller
             {
                 Account = ServiceAccount.LocalService
             };
 
-            // Define service properties
+            // Define the service details like name, description, and how it starts
             var serviceInstaller = new ServiceInstaller
             {
                 ServiceName = "FileMoverService",
                 DisplayName = "File Mover Service",
                 Description = "Moves files from Folder1 to Folder2 and logs events.",
-                StartType = ServiceStartMode.Automatic
+                StartType = ServiceStartMode.Automatic // Starts automatically when Windows boots
             };
 
-            // Add both installers
+            // Add both installers so they run during installation
             Installers.Add(processInstaller);
             Installers.Add(serviceInstaller);
         }
