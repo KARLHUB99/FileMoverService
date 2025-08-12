@@ -22,7 +22,7 @@ namespace FileMoverService
             {
                 ServiceName = "FileMoverService",
                 DisplayName = "File Mover Service",
-                Description = "Moves files from Folder1 to Folder2 and logs events.",
+                Description = "Moves files from Folder A to Folder B and logs events.",
                 StartType = ServiceStartMode.Automatic // Starts automatically when Windows boots
             };
 

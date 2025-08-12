@@ -1,5 +1,6 @@
 ﻿using FileMoverServiceClib;
 using System;
+using System.Configuration;
 using System.IO;
 using System.ServiceProcess;
 using System.Threading;
@@ -17,11 +18,9 @@ namespace FileService
         // Timer to regularly log that the service is still running (heartbeat)
         private Timer _heartbeatTimer;
 
-        // The folder where files are picked up from
-        private const string SourceFolder = @"C:\A Folder";
-
-        // The folder where files will be moved to
-        private const string TargetFolder = @"C:\B Folder";
+        // Folder paths read from config
+        private string SourceFolder;
+        private string TargetFolder;
 
         // Names used for logging events in Windows Event Viewer
         private const string EventSourceName = "FileMoverServiceSource";
@@ -36,6 +35,16 @@ namespace FileService
                 new EventLogger(EventSourceName, EventLogName),
                 new NLogLogger()
             );
+
+            // Read folder paths from App.config
+            SourceFolder = ConfigurationManager.AppSettings["SourceFolder"];
+            TargetFolder = ConfigurationManager.AppSettings["TargetFolder"];
+
+            // Validate config values early
+            if (string.IsNullOrWhiteSpace(SourceFolder) || string.IsNullOrWhiteSpace(TargetFolder))
+            {
+                throw new ConfigurationErrorsException("SourceFolder and TargetFolder must be set in App.config.");
+            }
         }
 
         // Called when the service starts
@@ -62,19 +71,16 @@ namespace FileService
             }
             catch (UnauthorizedAccessException uae)
             {
-                // Log and stop if we don’t have permission to access the folders
                 _logger.Error("Access denied to source or target folder during startup.", uae);
                 Stop();
             }
             catch (DirectoryNotFoundException dirEx)
             {
-                // Log and stop if any of the folders don’t exist
                 _logger.Error("One or more directories not found during startup.", dirEx);
                 Stop();
             }
             catch (Exception ex)
             {
-                // Log any other unexpected errors and stop the service
                 _logger.Error("Unexpected error during startup.", ex);
                 Stop();
             }
@@ -87,10 +93,7 @@ namespace FileService
 
             try
             {
-                // Stop the heartbeat timer
                 _heartbeatTimer?.Dispose();
-
-                // Stop watching the folder and clean up
                 _folderMonitor?.Stop();
                 _folderMonitor?.Dispose();
 
@@ -98,7 +101,6 @@ namespace FileService
             }
             catch (Exception ex)
             {
-                // Log any errors encountered while stopping
                 _logger.Error("Error occurred while stopping FileMoverService.", ex);
             }
         }
@@ -111,19 +113,15 @@ namespace FileService
                 try
                 {
                     if (Directory.Exists(source) && Directory.Exists(target))
-                        return; // Both folders exist, we're good to go
+                        return;
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    // Pass permission errors to be handled by caller
                     throw;
                 }
-
-                // Wait a bit before trying again
                 Thread.Sleep(delayMs);
             }
 
-            // If folders still don’t exist after retries, throw exceptions
             if (!Directory.Exists(source))
                 throw new DirectoryNotFoundException($"Source folder not found: {source}");
 
