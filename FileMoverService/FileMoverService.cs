@@ -22,7 +22,6 @@ namespace FileService
         private string SourceFolder;
         private string TargetFolder;
 
-        // Names used for logging events in Windows Event Viewer
         private const string EventSourceName = "FileMoverServiceSource";
         private const string EventLogName = "FileMoverServiceLog";
 
