@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace FileMoverServiceClib
 {
-    // Logger that forwards log messages to multiple other loggers
     public class CompositeLogger : ILogger
     {
         // Holds the list of actual loggers to send messages to
