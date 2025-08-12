@@ -9,7 +9,7 @@ namespace FileService
 {
     public partial class FileMoverService : ServiceBase
     {
-        // Keeps an eye on the source folder and moves files to the target folder
+
         private FolderMonitor _folderMonitor;
 
         // Used to log info, errors, and other messages
