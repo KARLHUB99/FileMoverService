@@ -14,7 +14,6 @@ namespace FileMoverServiceClib
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        // Waits for the file to be free (not locked) so it can be safely accessed
         // Tries multiple times, with a delay between attempts
         public bool WaitForFileReady(string filePath, int retries = 10, int delayMs = 500)
         {
